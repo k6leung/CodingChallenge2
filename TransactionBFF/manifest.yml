@@ -1,0 +1,14 @@
+---
+applications:
+- name: TransactionBFF
+  memory: 512M
+  instances: 1
+  buildpack: java_buildpack
+  path: ./target/TransactionBFF-0.0.1-SNAPSHOT.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    JBP_CONFIG_DEBUG: '{enabled: true}'
+  services:
+  - configServer
+  routes:
+  - route: transactions.local.pcfdev.io

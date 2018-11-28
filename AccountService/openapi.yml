@@ -1,0 +1,222 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Account Service
+  license:
+    name: --
+servers:
+  - url: http://accounts.local.pcfdev.io
+paths:
+  /api/account:
+    post:
+      summary: Create Account
+      operationId: createOrUpdateAccount
+      tags:
+        - Accounts
+      requestBody:
+        description: The account to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Account"
+      responses:
+        '201':
+          description: A paged array of pets
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Account"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/account/{id}:            
+    get:
+      summary: Find account by ID
+      operationId: findAccountById
+      tags:
+        - Accounts
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the account.
+      responses:
+        '200':
+          description: Account that matches
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/account/accountNumber/{accountNumber}:
+    get:
+      summary: Find account by account number.
+      operationId: findAccountByAccountNumber
+      tags:
+        - Accounts
+      parameters:
+        - name: accountNumber
+          in: path
+          required: true
+          description: The account number
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/account/debit:
+    put:
+      summary: Debit specified amount in specified currency from specified account
+      operationId: debit
+      tags:
+        - Accounts
+      requestBody:
+        description: The debit request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountBalanceWithdrawRequest"
+      responses:
+        '204':
+          description: The debit has been processed successfully
+        '400':
+          description: Invalid account number / invalid or unsupported currency / invalid amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"             
+  /api/account/credit:
+    put:
+      summary: Credit specified amount in specified currency to specified account
+      operationId: credit
+      tags:
+        - Accounts
+      requestBody:
+        description: The credit request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountBalanceReceiveRequest"
+      responses:
+        '204':
+          description: The debit has been processed successfully
+        '400':
+          description: Invalid account number / invalid or unsupported currency / invalid amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        currencyBalances:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            HKD: 10.0
+            USD: 100.0
+      required:
+        - accountNumber
+        - currencyBalances
+    AccountBalanceWithdrawRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        sequenceNumber:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    AccountBalanceReceiveRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        sequenceNumber:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    Error:
+      required:
+        - errorCode
+        - errorMessages
+      properties:
+        errorCode:
+          type: string
+        errorMessages:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            en_US: "failed"

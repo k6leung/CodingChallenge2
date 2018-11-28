@@ -1,0 +1,71 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: BalanceEnquiryBFF
+  license:
+    name: --
+servers:
+  - url: http://balance-enquiry.local.pcfdev.io
+paths:
+  /api/balance/{accountNumber}:            
+    get:
+      summary: Find account by ID
+      operationId: findAccountByAccountNumber
+      tags:
+        - Accounts
+      parameters:
+        - in: path
+          name: accountNumber
+          schema:
+            type: string
+          required: true
+          description: The account number of the account.
+      responses:
+        '200':
+          description: Account that matches
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        currencyBalances:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            HKD: 10.0
+            USD: 100.0
+      required:
+        - accountNumber
+        - currencyBalances
+    Error:
+      required:
+        - errorCode
+        - errorMessages
+      properties:
+        errorCode:
+          type: string
+        errorMessages:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            en_US: "failed"

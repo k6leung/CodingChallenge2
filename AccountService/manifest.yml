@@ -1,0 +1,14 @@
+---
+applications:
+- name: AccountService
+  memory: 512M
+  instances: 1
+  buildpack: java_buildpack
+  path: ./target/AccountService-0.0.1-SNAPSHOT.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    JBP_CONFIG_DEBUG: '{enabled: true}'
+  services:
+  - accountRedis
+  routes:
+  - route: accounts.local.pcfdev.io
