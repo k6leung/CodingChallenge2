@@ -215,12 +215,6 @@ public class TransactionServiceImpl implements TransactionService {
 		String currency = request.getCurrency();
 		BigDecimal value = request.getValue();
 		
-		//TODO validate request with real account...
-		
-		
-		
-		
-		
 		log.info("TransactionServiceImpl.createTransaction() - sequence: " + sequenceNumberString + " attenpt debit.");
 		AccountBalanceWithdrawRequest debitRequest = new AccountBalanceWithdrawRequest(debitAccountNumber,
 																						currency,
