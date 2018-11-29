@@ -1,0 +1,104 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: TransactionBFF
+  license:
+    name: --
+servers:
+  - url: http://transactions.local.pcfdev.io/
+paths:
+  /api/transaction:
+    post:
+      summary: Create transaction
+      operationId: createTransaction
+      tags:
+        - Transactions
+      requestBody:
+        description: The transaction to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionRequest"
+      responses:
+        '201':
+          description: Transaction created successfuly
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        '400':
+          description: Empty or invalid account number / unsupported currency / negative transaction amount
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        currencyBalances:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            HKD: 10.0
+            USD: 100.0
+      required:
+        - accountNumber
+        - currencyBalances
+    TransactionRequest:
+      type: object
+      required:
+        - debitAccountNumber
+        - creditAccountNumber
+        - currency
+        - value
+      properties:
+        debitAccountNumber:
+          type: string
+        creditAccountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+    TransactionResponse:
+      type: object
+      properties:
+        transactionRequest:
+          $ref: "#/components/schemas/TransactionRequest"
+        debitAccount:
+          $ref: "#/components/schemas/Account"
+    Error:
+      type: object
+      required:
+        - errorCode
+        - errorMessages
+      properties:
+        errorCode:
+          type: string
+        errorMessages:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            en_US: "failed"

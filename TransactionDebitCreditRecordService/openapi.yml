@@ -1,0 +1,303 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Transaction Debit Credit Record Service
+  license:
+    name: --
+servers:
+  - url: http://transaction-records.local.pcfdev.io/
+paths:
+  /api/creditRecord:
+    post:
+      summary: Create account credit record
+      operationId: createCreditRecord
+      tags:
+        - Credit
+      requestBody:
+        description: The credit record
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountBalanceReceiveRequest"
+      responses:
+        '201':
+          description: Credit record created successfully
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/CreditRecord"
+        '400':
+          description: Empty or invalid account number / unsupported balance / negative value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/creditRecord/{id}:            
+    get:
+      summary: Find credit record by ID
+      operationId: findCreditRecordById
+      tags:
+        - Credit
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the account.
+      responses:
+        '200':
+          description: Account that matches
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreditRecord"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/debitRecord:
+    post:
+      summary: Create account debit record
+      operationId: createDebitRecord
+      tags:
+        - Debit
+      requestBody:
+        description: The debit record
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountBalanceWithdrawRequest"
+      responses:
+        '201':
+          description: Debit record created successfully
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/CreditRecord"
+        '400':
+          description: Empty or invalid account number / unsupported balance / negative value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/debitRecord/{id}:            
+    get:
+      summary: Find debit record by ID
+      operationId: findDebitRecordById
+      tags:
+        - Debit
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the account.
+      responses:
+        '200':
+          description: Account that matches
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebitRecord"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  
+  
+  /api/transactionRecord:
+    post:
+      summary: Create transaction record
+      operationId: createTransactionRecord
+      tags:
+        - Transaction
+      requestBody:
+        description: The transaction record
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionRecordCreationRequest"
+      responses:
+        '201':
+          description: Transaction record created successfully
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/TransactionRecord"
+        '400':
+          description: Empty or invalid account number / unsupported balance / negative value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        currencyBalances:
+          type: object
+          additionalProperties:
+            type: number
+          example:
+            HKD: 10.0
+            USD: 100.0
+      required:
+        - accountNumber
+        - currencyBalances
+    CreditRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        createdTime:
+          type: string
+          format: date-time
+    DebitRecord:  
+      type: object
+      properties:
+        id:
+          type: string
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        createdTime:
+          type: string
+          format: date-time
+    AccountBalanceWithdrawRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        sequenceNumber:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    AccountBalanceReceiveRequest:
+      type: object
+      properties:
+        accountNumber:
+          type: string
+        currency:
+          type: string
+        value:
+          type: number
+          format: float
+        sequenceNumber:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    TransactionRecordCreationRequest:
+      type: object
+      properties:
+        debitRecordId:
+          type: string
+        creditRecordId:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    TransactionRecord:
+      type: object
+      properties:
+        id:
+          type: string
+        debitRecordId:
+          type: string
+        creditRecordId:
+          type: string
+        createdTime:
+          type: string
+          format: date-time
+    Error:
+      required:
+        - errorCode
+        - errorMessages
+      properties:
+        errorCode:
+          type: string
+        errorMessages:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            en_US: "failed"

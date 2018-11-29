@@ -57,6 +57,7 @@ components:
         - accountNumber
         - currencyBalances
     Error:
+      type: object
       required:
         - errorCode
         - errorMessages
